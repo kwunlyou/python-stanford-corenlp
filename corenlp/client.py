@@ -47,7 +47,7 @@ class RobustService(object):
     """
     Service that resuscitates itself if it is not available.
     """
-    TIMEOUT = 15
+    TIMEOUT = 45
 
     def __init__(self, start_cmd, stop_cmd, endpoint, stdout=sys.stdout,
                  stderr=sys.stderr, be_quiet=False):
@@ -197,6 +197,9 @@ class CoreNLPClient(RobustService):
                 raise TimeoutException(r.text)
             else:
                 raise AnnotationException(r.text)
+        except requests.ConnectionError as e:
+            time.sleep(2)
+            return self._request(buf, properties)
 
     def annotate(self, text, annotators=None, output_format=None, properties=None):
         """Send a request to the CoreNLP server.
